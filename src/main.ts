@@ -1,7 +1,5 @@
 import express, { Express } from "express";
-import { userRouter } from "./routes/user-route";
-import { restaurantRouter } from "./routes/restaurant-route";
-import { orderRouter } from "./routes/order-route";
+import { publicRouter } from "./routes/public-router";
 import { errorMiddleware } from "./middleware/error-middleware";
 import { PORT } from "./utils/env-util";
 
@@ -12,10 +10,8 @@ const port = PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
-app.use("/api/users", userRouter);
-app.use("/api/restaurants", restaurantRouter);
-app.use("/api/orders", orderRouter);
+// Routes - single public router
+app.use("/api", publicRouter);
 
 // Error handling middleware (must be last)
 app.use(errorMiddleware);
