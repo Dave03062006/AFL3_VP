@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(100)
+  phoneNumber String   @db.VarChar(100)
+  orders      Order[]  @relation("UserOrders")
+  userRestaurants UserRestaurant[]
+
+  @@map("users")
+}
+
+model Restaurant {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(100)
+  description String   @db.Text
+  Open        Boolean  @db.Boolean
+
+  orders      Order[]  @relation("RestaurantOrders")
+  userRestaurants UserRestaurant[]
+
+  @@map("restaurants")
+}
+
+model UserRestaurant {
+  id            Int        @id @default(autoincrement())
+  user_id       Int
+  restaurant_id Int
+  createdAt     DateTime   @default(now())
+
+  user          User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  restaurant    Restaurant @relation(fields: [restaurant_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, restaurant_id])
+  @@map("user_restaurants")
+}
+
+model Order {
+  id            Int        @id @default(autoincrement())
+  name          String     @db.VarChar(100)
+  time          DateTime   @default(now())
+  estimatedTime DateTime?
+  items         Int
+
+  restaurant_id Int?
+  user_id       Int?
+
+  restaurant    Restaurant? @relation("RestaurantOrders", fields: [restaurant_id], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  user          User?       @relation("UserOrders", fields: [user_id], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+  @@map("orders")
+}
